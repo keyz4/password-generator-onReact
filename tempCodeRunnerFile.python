@@ -1,0 +1,114 @@
+import mysql.connector
+import time
+
+# Connect to MySQL database
+db = mysql.connector.connect(
+    host="localhost",
+    user="root",
+    password="Keyz4@code",
+    database="contact"
+)
+
+cursor = db.cursor()
+
+# Create the 'book' table if it doesn't exist
+cursor.execute("""
+    CREATE TABLE IF NOT EXISTS book (
+        name char(30) primary key,
+        address char(100),
+        mobile char(15),
+        email char(30)
+    );
+""")
+
+
+def intro():
+    # Print an introduction message
+    print("=" * 80)
+    print("{:^80s}".format("CONTACT BOOK"))
+    print("{:^80s}".format("PROJECT"))
+    print("{:^80s}".format("MADE BY: ATULYA MISHRA"))
+    print("=" * 80)
+    print()
+    time.sleep(2)
+
+
+def create_record():
+    # Add a new contact record
+    name = input("Enter name: ")
+    address = input("Enter address: ")
+    mobile = input("Enter mobile: ")
+    email = input("Enter email: ")
+    
+    # Insert the record into the 'book' table
+    sql = "INSERT INTO book(name,address,mobile,email) VALUES (%s,%s,%s,%s)"
+    record = (name, address, mobile, email)
+    cursor.execute(sql, record)
+    db.commit()
+    print("Record Entered Successfully\n")
+
+
+def search(name):
+    # Search for a contact by name
+    sql = "SELECT * FROM book WHERE name = %s"
+    value = (name,)
+    cursor.execute(sql, value)
+    record = cursor.fetchone()
+    if record is None:
+        print("No such record exists")
+    else:
+        print('Name:', record[0])
+        print('Address:', record[1])
+        print('Mobile:', record[2])
+        print('E-mail:', record[3])
+
+
+def delete_record(name):
+    # Delete a contact record by name
+    sql = "DELETE FROM book WHERE name = %s"
+    value = (name,)
+    cursor.execute(sql, value)
+    db.commit()
+    if cursor.rowcount == 0:
+        print("Record not found")
+    else:
+        print("Record deleted successfully")
+
+
+def main():
+    intro()
+    while True:
+        # Display the main menu
+        print("\nMAIN MENU ")
+        print("1. ADD NEW RECORD")
+        print("2. SEARCH RECORD")
+        print("3. DELETE RECORD")
+        print("4. EXIT")
+        print()
+        ch = int(input("Select Your Option (1-4): "))
+        print()
+        
+        if ch == 1:
+            # Option to add a new record
+            print("ADD NEW RECORD")
+            create_record()
+        elif ch == 2:
+            # Option to search for a record
+            print("SEARCH RECORD BY NAME")
+            name = input("Enter name: ")
+            search(name)
+        elif ch == 3:
+            # Option to delete a record
+            print("DELETE RECORD")
+            name = input("Enter name: ")
+            delete_record(name)
+        elif ch == 4:
+            # Exit the program
+            print("Thanks for using Contact Book")
+            db.close()
+            break
+        else:
+            print("Invalid choice")
+
+if __name__ == "__main__":
+    main()
